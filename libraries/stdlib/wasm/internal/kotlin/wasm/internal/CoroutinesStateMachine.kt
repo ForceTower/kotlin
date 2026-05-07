@@ -11,7 +11,7 @@ import kotlin.coroutines.Continuation
 import kotlin.internal.DoNotInlineOnFirstStage
 import kotlin.internal.UsedFromCompilerGeneratedCode
 
-// Is replaced by Stack Switching intrinsic when -Xwasm-coroutines-stack-switching passed
+// Is replaced by Stack Switching intrinsic when -Xwasm-use-stack-switching-proposal passed
 @PublishedApi
 @DoNotInlineOnFirstStage
 @UsedFromCompilerGeneratedCode

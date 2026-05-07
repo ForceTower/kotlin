@@ -34,7 +34,7 @@ internal fun resumeThrowIntrinsic(): Any? {
 }
 
 @ExcludedFromCodegen
-internal fun nullableContrefIntrinsic(): typedcontref<(Any?) -> Unit>? {
+internal fun nullContrefIntrinsic(): typedcontref<(Any?) -> Unit>? {
     implementedAsIntrinsic
 }
 
@@ -43,7 +43,7 @@ internal fun nullableContrefIntrinsic(): typedcontref<(Any?) -> Unit>? {
 @Suppress("UNCHECKED_CAST")
 internal suspend inline fun <T> suspendCoroutineUninterceptedOrReturnStackSwitching(block: (Continuation<T>) -> Any?): T {
     val completion = getContinuation<T>()
-    val wasmContBox = WasmContinuationBox(nullableContrefIntrinsic())
+    val wasmContBox = WasmContinuationBox(nullContrefIntrinsic())
     val freshCont = CoroutineImplStackSwitching<T, T>(completion, wasmContBox)
     freshCont.pendingSuspend = true
     val blockResult = block(freshCont)

@@ -13,7 +13,7 @@ import kotlin.coroutines.CoroutineImplStateMachine
 import kotlin.internal.UsedFromCompilerGeneratedCode
 import kotlin.wasm.internal.WasmCoroutineMode
 
-// Is replaced by Stack Switching intrinsic when -Xwasm-coroutines-stack-switching passed
+// Is replaced by Stack Switching intrinsic when -Xwasm-use-stack-switching-proposal passed
 @UsedFromCompilerGeneratedCode
 internal fun <T> createCoroutineUninterceptedIntrinsic0(
     f: suspend () -> T,
@@ -22,7 +22,7 @@ internal fun <T> createCoroutineUninterceptedIntrinsic0(
     f.startCoroutineUninterceptedOrReturn(completion)
 }
 
-// Is replaced by Stack Switching intrinsic when -Xwasm-coroutines-stack-switching passed
+// Is replaced by Stack Switching intrinsic when -Xwasm-use-stack-switching-proposal passed
 @UsedFromCompilerGeneratedCode
 internal fun <R, T> createCoroutineUninterceptedIntrinsic1(
     f: suspend R.() -> T,

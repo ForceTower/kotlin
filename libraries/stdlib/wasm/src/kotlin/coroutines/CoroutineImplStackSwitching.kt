@@ -11,7 +11,7 @@ import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlin.internal.UsedFromCompilerGeneratedCode
 import kotlin.wasm.internal.WasmPrimitiveConstructor
 import kotlin.wasm.internal.WasmCoroutineMode
-import kotlin.wasm.internal.nullableContrefIntrinsic
+import kotlin.wasm.internal.nullContrefIntrinsic
 import kotlin.wasm.internal.reftypes.typedcontref
 import kotlin.wasm.internal.resumeThrowImpl
 import kotlin.wasm.internal.resumeWithImpl
@@ -22,7 +22,7 @@ import kotlin.wasm.internal.resumeWithImpl
 internal class CoroutineImplStackSwitching<T, R>(
     resultContinuation: Continuation<R>,
     internal val wasmContBox: WasmContinuationBox =
-        WasmContinuationBox(nullableContrefIntrinsic())
+        WasmContinuationBox(nullContrefIntrinsic())
 ) : CoroutineImpl<T, R>(resultContinuation) {
 
     protected val _resultContinuation = resultContinuation
