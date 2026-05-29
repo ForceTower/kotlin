@@ -111,3 +111,15 @@ var IrSimpleFunction.originalCallableReferenceClass: IrClass? by irAttribute(cop
  * For anonymous classes representing callable references contains it's preceding [IrRichFunctionReference] node.
  */
 var IrClass.originalCallableReference: IrRichFunctionReference? by irAttribute(copyByDefault = false)
+
+/**
+ * For classes with initialized static members, contains a reference to a static initializer function.
+ */
+var IrClass.staticInitializer: IrSimpleFunction? by irAttribute(copyByDefault = false)
+
+/**
+ * Marks that [org.jetbrains.kotlin.ir.backend.js.lower.JsStaticInitializersLowering] has already processed this class.
+ * The attribute exist to process each class no more than 1 time, regardless of module lowering instance that processed static initializer
+ * of specific class.
+ */
+internal var IrClass.staticInitializerProcessed: Boolean by irFlag(copyByDefault = false)
