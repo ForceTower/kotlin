@@ -171,7 +171,9 @@ internal class DescriptorKFunction private constructor(
             DescriptorKFunction(containerClass.kotlin as KClassImpl<*>, it)
         }
 
-    override fun shallowCopy(container: KDeclarationContainerImpl, overriddenStorage: KCallableOverriddenStorage): DescriptorKFunction =
+    override fun shallowCopy(
+        container: KDeclarationContainerImpl, overriddenStorage: KCallableOverriddenStorage, boundReceiver: Any?,
+    ): DescriptorKFunction =
         DescriptorKFunction(container, descriptor, overriddenStorage)
 
     // boundReceiver is unboxed receiver when the receiver is inline class.
