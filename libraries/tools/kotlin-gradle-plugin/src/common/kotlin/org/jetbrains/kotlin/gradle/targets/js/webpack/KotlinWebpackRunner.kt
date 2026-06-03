@@ -20,19 +20,19 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.NpmProject
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmProjectModules
 import org.jetbrains.kotlin.gradle.utils.processes.ExecAsyncHandle
 import org.jetbrains.kotlin.gradle.utils.processes.ExecAsyncHandle.Companion.execAsync
-import java.io.File
+import java.nio.file.Path
 
 internal data class KotlinWebpackRunner(
     val npmProject: NpmProject,
     val logger: Logger,
-    val configFile: File,
+    val configFile: Path,
     val tool: String,
     val args: List<String>,
     val nodeArgs: List<String>,
     val config: KotlinWebpackConfig,
     private val objects: ObjectFactory,
     private val execOps: ExecOperations,
-    private val npmToolingEnvDir: File,
+    private val npmToolingEnvDir: Path,
     private val resolveModulesFromKotlinToolingDir: Boolean,
 ) {
 
@@ -114,16 +114,16 @@ internal data class KotlinWebpackRunner(
             logger = errorClient.log
         )
 
-        config.save(configFile)
+        config.save(configFile.toFile())
 
         val args = buildArgs()
 
-        val modules = NpmProjectModules(npmToolingEnvDir)
+        val modules = NpmProjectModules(npmToolingEnvDir.toFile())
         execSpec.workingDir(npmProject.dir)
         execSpec.executable(npmProject.nodeExecutable)
         if (resolveModulesFromKotlinToolingDir) {
-            execSpec.environment("NODE_PATH", npmToolingEnvDir.resolve("node_modules"))
-            execSpec.environment("KOTLIN_TOOLING_DIR", npmToolingEnvDir.resolve("node_modules"))
+            execSpec.environment("NODE_PATH", npmToolingEnvDir.resolve("node_modules").toString())
+            execSpec.environment("KOTLIN_TOOLING_DIR", npmToolingEnvDir.resolve("node_modules").toString())
         }
 
         execSpec.args = nodeArgs + modules.require(tool) + args
@@ -133,7 +133,7 @@ internal data class KotlinWebpackRunner(
         val args = args.toMutableList()
 
         args.add("--config")
-        args.add(configFile.absolutePath)
+        args.add(configFile.toAbsolutePath().normalize().toString())
         if (config.showProgress) {
             args.add("--progress")
         }
