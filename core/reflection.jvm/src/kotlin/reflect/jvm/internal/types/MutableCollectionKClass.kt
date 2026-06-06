@@ -7,6 +7,7 @@ package kotlin.reflect.jvm.internal.types
 
 import org.jetbrains.kotlin.types.model.TypeConstructorMarker
 import kotlin.LazyThreadSafetyMode.PUBLICATION
+import kotlin.metadata.KmClass
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
@@ -23,6 +24,7 @@ import kotlin.reflect.jvm.internal.KTypeParameterOwnerImpl
 internal class MutableCollectionKClass<T : Any>(
     val readonlyClass: KClass<T>,
     override val qualifiedName: String,
+    val mutableKmClass: KmClass?,
     createTypeParameters: (MutableCollectionKClass<T>) -> List<KTypeParameter>,
     createSupertypes: () -> List<KType>,
 ) : KClass<T> by readonlyClass, TypeConstructorMarker, KTypeParameterOwnerImpl {

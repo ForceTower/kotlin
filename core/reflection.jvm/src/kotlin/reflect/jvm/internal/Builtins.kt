@@ -140,6 +140,7 @@ internal fun getMutableCollectionKClass(readonlyClass: KClass<*>): MutableCollec
         MutableCollectionKClass(
             readonlyClass,
             mutableClassId.asSingleFqName().asString(),
+            mutableKmClass,
             createTypeParameters = { typeParameterTable.ownTypeParameters },
             createSupertypes = {
                 mutableKmClass.supertypes.map {
