@@ -135,7 +135,6 @@ val jvmCompilerModules = arrayOf(
 val jsCompilerModules = arrayOf(
     ":compiler:backend.js",
     ":js:js.sourcemap",
-    ":js:js.serializer",
     ":js:js.parser",
     ":js:js.translator",
     ":js:typescript-export-model",
@@ -240,7 +239,6 @@ val projectsUsedInIntelliJKotlinPlugin =
             cliCompilerModules +
             jvmCompilerModules + // used by K1 plugin
             arrayOf(
-                ":js:js.serializer",
                 ":native:binary-options",
 
                 ":kotlin-allopen-compiler-plugin.cli",
@@ -353,7 +351,6 @@ extra["kotlinJpsPluginEmbeddedDependencies"] = listOf(
     ":core:descriptors",
     ":core:descriptors.jvm",
     ":compiler:backend.common.jvm",
-    ":js:js.serializer",
     ":core:deserialization",
     ":core:deserialization.common",
     ":core:deserialization.common.jvm",
