@@ -39,11 +39,7 @@ sealed class TestRunner<Step : TestStep<*, *>, Configuration : TestConfiguration
 
     fun finalizeAndDispose(beforeDispose: (Configuration) -> Unit = {}) {
         try {
-            if (!failuresInterceptor.hasFailures) {
-                testConfiguration.testServices.temporaryDirectoryManager.cleanupTemporaryDirectories()
-            } else {
-                println("Preserving temporary directory due to test failure: ${testConfiguration.testServices.temporaryDirectoryManager.rootDir.absolutePath}")
-            }
+            testConfiguration.testServices.temporaryDirectoryManager.cleanupTemporaryDirectories()
         } catch (e: IOException) {
             println("Failed to clean temporary directories:")
             e.printStackTrace()
