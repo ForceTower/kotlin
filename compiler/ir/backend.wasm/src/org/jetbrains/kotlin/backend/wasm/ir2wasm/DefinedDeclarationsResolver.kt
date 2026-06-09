@@ -29,7 +29,10 @@ internal class DefinedDeclarationsResolver(
     val globalLiteralGlobals: MutableMap<String, WasmGlobal> = mutableMapOf()
 
     override fun resolve(type: Type): WasmTypeDeclaration = when (type) {
-        is GcHeapTypeSymbol -> gcTypes.getValue(type.type)
+        is GcHeapTypeSymbol -> gcTypes[type.type]
+        // If the type was not found in `gcTypes`, then it means that the type was removed and PL generated a stub for it.
+        // In that case we just replace the given type with `Any`
+            ?: vTableGcTypes.getValue(Synthetics.HeapTypes.anyBuiltInType.type)
         is VTableHeapTypeSymbol -> vTableGcTypes.getValue(type.type)
         is FunctionHeapTypeSymbol -> functionTypes.getValue(type.type)
         else -> error("Unsupported Type type: ${type::class.simpleName}")
