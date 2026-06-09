@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.gradle.utils.prettyName
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
+import org.jetbrains.kotlin.util.removeSuffixIfPresent
 import org.jetbrains.kotlin.utils.addToStdlib.flatGroupBy
 import java.io.File
 import java.net.URI
@@ -2311,6 +2312,42 @@ internal object KotlinToolingDiagnostics {
                 .description { "A SwiftPM package has been generated alongside the XCFramework to describe its SwiftPM dependencies" }
                 .solution { "Please publish the XCFramework with the generated SwiftPM package" }
                 .documentationLink(URI("https://kotl.in/xcframework-with-swiftpm-dependencies"))
+        }
+    }
+
+    internal object KotlinCompilationInDaemonHasFailed : ToolingDiagnosticFactory(
+        WARNING,
+        DiagnosticGroup.Compiler.Warning
+    ) {
+        operator fun invoke(
+            trace: Throwable?,
+            withFallback: Boolean,
+        ): ToolingDiagnostic {
+            val (severity, group) = if (withFallback) {
+                WARNING to DiagnosticGroup.Compiler.Warning
+            } else {
+                ERROR to DiagnosticGroup.Compiler.Error
+            }
+
+            return build(severity = severity, group = group, throwable = trace) {
+                val failDetails = trace?.message?.removeSuffixIfPresent("\n")?.let { ": $it" }
+                    ?: "check logs for the exact reason"
+
+                title { "Compilation in Kotlin daemon has failed" }
+                    .description {
+                        val base = "Failed to compile with Kotlin daemon $failDetails\n"
+                        val fallback = if (withFallback) {
+                            "Using fallback strategy (kotlin.daemon.useFallbackStrategy=true): Compile without Kotlin daemon"
+                        } else {
+                            "Fallback strategy (kotlin.daemon.useFallbackStrategy=false, compiling without Kotlin daemon) is turned off."
+                        }
+                        base + fallback
+                    }
+                    .solution {
+                        "Try ./gradlew --stop if this issue persists. " +
+                                "If it does not look related to your configuration, please file an issue with logs to https://kotl.in/issue."
+                    }
+            }
         }
     }
 }
