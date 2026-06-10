@@ -2344,8 +2344,10 @@ internal object KotlinToolingDiagnostics {
                         base + fallback
                     }
                     .solution {
-                        "Try ./gradlew --stop if this issue persists. " +
-                                "If it does not look related to your configuration, please file an issue with logs to https://kotl.in/issue."
+                        "Please read the Compiler/deamon error. It should contain detailed information on the issue and how to resolve it. " +
+                                "Or Run ./gradlew --stop if this issue persists. " +
+                                "If it does not look related to your configuration, please file an issue with logs to https://kotl.in/issue." +
+                                if (!withFallback) " Additionally remove 'kotlin.daemon.useFallbackStrategy=true' from 'gradle.properties' and try to recompile." else ""
                     }
             }
         }

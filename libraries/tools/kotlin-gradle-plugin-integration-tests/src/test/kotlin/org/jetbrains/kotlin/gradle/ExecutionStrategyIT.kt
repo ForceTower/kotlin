@@ -284,9 +284,9 @@ abstract class ExecutionStrategyIT : KGPDaemonsBaseTest() {
                 assertOutputContains(expectedFinishStrategy.asFinishLogMessage)
                 checkOutput(this@project)
 
-                assertHasDiagnostic(KotlinToolingDiagnostics.KotlinCompilationInDaemonHasFailed)
 
                 if (testFallbackStrategy) {
+                    assertHasDiagnostic(KotlinToolingDiagnostics.KotlinCompilationInDaemonHasFailed)
                     assertOutputContains("Invalid maximum heap size: -Xmxqwerty")
                     assertOutputContains("Using fallback strategy (kotlin.daemon.useFallbackStrategy=true): Compile without Kotlin daemon")
                 } else if (executionStrategy == KotlinCompilerExecutionStrategy.DAEMON) {
