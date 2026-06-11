@@ -21,6 +21,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.work.NormalizeLineEndings
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaExternalDocumentationLinkSpec
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -55,7 +56,7 @@ fun Project.generateJavadocForPluginVariant(gradlePluginVariant: GradlePluginVar
         description = "Generates API documentation for '${variantSourceSet.name}' variant"
     }
 
-    dokkaExtension.configureCommonDokkaConfiguration(gradlePluginVariant, commonSourceSet, variantSourceSet)
+    dokkaExtension.configureCommonDokkaConfiguration(this, gradlePluginVariant, commonSourceSet, variantSourceSet)
 
     tasks.named<Jar>(variantSourceSet.javadocJarTaskName).configure {
         from(tasks.named<DokkaGenerateTask>("dokkaGeneratePublicationHtml").flatMap { it.outputDirectory })
@@ -63,6 +64,7 @@ fun Project.generateJavadocForPluginVariant(gradlePluginVariant: GradlePluginVar
 }
 
 fun DokkaExtension.configureCommonDokkaConfiguration(
+    project: Project,
     gradlePluginVariant: GradlePluginVariant,
     commonSourceSet: SourceSet,
     variantSourceSet: SourceSet,
@@ -96,6 +98,10 @@ fun DokkaExtension.configureCommonDokkaConfiguration(
         dokkaSourceSets.named(GradlePluginVariant.GRADLE_MIN.sourceSetName) {
             suppress.set(true)
         }
+    }
+
+    pluginsConfiguration.named<DokkaHtmlPluginParameters>(DokkaHtmlPluginParameters.DOKKA_HTML_PARAMETERS_NAME).configure {
+        templatesDir.set(project.rootDir.resolve("build/api-reference/templates"))
     }
 }
 
