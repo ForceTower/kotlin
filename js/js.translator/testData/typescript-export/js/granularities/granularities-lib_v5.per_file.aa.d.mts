@@ -13,7 +13,7 @@ type Nullable<T> = T | null | undefined
 declare function KtSingleton<T>(): T & (abstract new() => any);
 export declare function baz(): any/* List<number> */;
 
-// FILE: kotlin_main/main.export.d.mts
+// FILE: kotlin_main/myMain.export.d.mts
 type Nullable<T> = T | null | undefined
 declare function KtSingleton<T>(): T & (abstract new() => any);
 export declare function box(): string;

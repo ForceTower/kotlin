@@ -105,6 +105,9 @@ object JsStandardClassIds {
 
         @JvmField
         val JsNoRuntime = "JsNoRuntime".jsId()
+
+        @JvmField
+        val JsFileName = "JsFileName".jsId()
     }
 
     object Callables {
