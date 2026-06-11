@@ -7,7 +7,6 @@
 import lombok.AccessLevel;
 import lombok.extern.java.Log;
 
-
 @Log(access = AccessLevel.PUBLIC)
 public class JavaLogExample {
     static void test() {

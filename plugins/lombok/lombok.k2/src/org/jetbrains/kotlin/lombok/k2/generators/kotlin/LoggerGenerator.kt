@@ -54,6 +54,7 @@ import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.name.SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT
 import org.jetbrains.kotlin.types.ConstantValueKind
 import org.jetbrains.kotlin.utils.addIfNotNull
+import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
 class LoggerGeneratorKey(val logAnnotation: FirAnnotation) : LombokDeclarationKey()
 
@@ -161,21 +162,19 @@ class LoggerGenerator(session: FirSession) : FirDeclarationGenerationExtension(s
             val logOnCompanion = session.lombokService.getLogs(classSymbol).firstOrNull()
             if (logOnCompanion != null) {
                 targetClassSymbol = classSymbol
-                logOnCompanion.takeIf { config.logFieldIsStatic } ?: return null
+                logOnCompanion.takeIf { config.logFieldIsStatic }
             } else {
                 val outerClass = classSymbol.classId.outerClassId?.toSymbol(session) as? FirRegularClassSymbol ?: return null
                 targetClassSymbol = outerClass
-                session.lombokService.getLogs(outerClass).firstOrNull().takeIf { config.logFieldIsStatic } ?: return null
+                session.lombokService.getLogs(outerClass).firstOrNull().takeIf { config.logFieldIsStatic }
             }
         } else {
             targetClassSymbol = classSymbol
             // Always generate static/non-static fields for Java classes
-            if (classSymbol.hasJavaOrigin || classSymbol.classKind.isObject || !config.logFieldIsStatic) {
-                session.lombokService.getLogs(classSymbol).firstOrNull() ?: return null
-            } else {
-                return null
+            runIf(classSymbol.hasJavaOrigin || classSymbol.classKind.isObject || !config.logFieldIsStatic) {
+                session.lombokService.getLogs(classSymbol).firstOrNull()
             }
-        }
+        } ?: return null
 
         val logFieldOrPropertyName = Name.identifier(config.logFieldName)
 
