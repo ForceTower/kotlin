@@ -1,6 +1,5 @@
 // LANGUAGE: +CompanionBlocksAndExtensions
 // DUMP_KLIB_ABI: DEFAULT
-// IGNORE_BACKEND: WASM_JS, WASM_WASI
 import C.func
 
 class C {

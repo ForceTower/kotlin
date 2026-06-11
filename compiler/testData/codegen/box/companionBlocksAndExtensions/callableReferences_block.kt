@@ -1,7 +1,6 @@
 // WITH_STDLIB
 // LANGUAGE: +CompanionBlocksAndExtensions
 // DUMP_KLIB_ABI: DEFAULT
-// IGNORE_BACKEND: WASM_JS, WASM_WASI
 import kotlin.test.assertEquals
 import kotlin.reflect.*
 

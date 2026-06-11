@@ -1,6 +1,5 @@
 // LANGUAGE: +CompanionBlocksAndExtensions
 // DUMP_KLIB_ABI: DEFAULT
-// IGNORE_BACKEND: WASM_JS, WASM_WASI
 object Delegate {
     var value = ""
     operator fun getValue(a: Any?, b: Any?) = value
