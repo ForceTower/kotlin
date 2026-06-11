@@ -1113,25 +1113,18 @@ class CallAndReferenceGenerator(
         qualifier: FirResolvedQualifier,
         callableReferenceAccess: FirCallableReferenceAccess?,
     ): IrExpression? {
-        val classSymbol = qualifier.resolvedType.toClassLikeSymbol()
+        val classSymbol = qualifier.accessedObjectSymbol ?: return null
 
         if (callableReferenceAccess?.isBound == false) {
             return null
         }
 
-        val irType = qualifier.resolvedType.toIrType()
         return qualifier.convertWithOffsets { startOffset, endOffset ->
-            if (classSymbol != null) {
-                IrGetObjectValueImpl(
-                    startOffset, endOffset, irType,
-                    classSymbol.toIrSymbol() as IrClassSymbol
-                )
-            } else {
-                IrErrorCallExpressionImpl(
-                    startOffset, endOffset, irType,
-                    "Resolved qualifier ${qualifier.render()} does not have correctly resolved type"
-                )
-            }
+            @OptIn(ResolvedQualifierTypeAccess::class)
+            IrGetObjectValueImpl(
+                startOffset, endOffset, qualifier.resolvedType.toIrType(),
+                classSymbol.toIrSymbol() as IrClassSymbol
+            )
         }
     }
 
