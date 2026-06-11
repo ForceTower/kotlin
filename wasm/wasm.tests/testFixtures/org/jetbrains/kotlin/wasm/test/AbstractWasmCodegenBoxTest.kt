@@ -55,6 +55,7 @@ abstract class AbstractWasmCodegenBoxTest(
     val backend: TargetBackend,
     val platform: TargetPlatform,
     val wasmTarget: WasmTarget,
+    val pathToTestDir: String = "compiler/testData/codegen/",
 ): AbstractTwoStageKotlinCompilerTest() {
     abstract val currentWebCompilerSettings: CustomWebCompilerSettings
     abstract val additionalSourceProviders: List<Constructor<AdditionalSourceProvider>>
@@ -111,7 +112,7 @@ abstract class AbstractWasmCodegenBoxTest(
             klibArtifactsHandlersStep()
 
             commonConfigurationForWasmSecondStageTest(
-                pathToTestDir = "compiler/testData/codegen/",
+                pathToTestDir,
                 testGroupOutputDirPrefix = this@AbstractWasmCodegenBoxTest::class.java.simpleName +
                         currentWebCompilerSettings.defaultLanguageVersion,
             )
@@ -134,7 +135,9 @@ abstract class AbstractWasmCodegenBoxTest(
     }
 }
 
-abstract class AbstractWasmJsCodegenBoxTest : AbstractWasmCodegenBoxTest(TargetBackend.WASM_JS, WasmPlatforms.wasmJs, WasmTarget.JS) {
+abstract class AbstractWasmJsCodegenBoxTest(pathToTestDir: String = "compiler/testData/codegen/") :
+    AbstractWasmCodegenBoxTest(TargetBackend.WASM_JS, WasmPlatforms.wasmJs, WasmTarget.JS, pathToTestDir)
+{
     companion object {
         val currentWasmJsCompilerSettings = currentWasmCompilerSettings(WasmTarget.JS)
     }
@@ -184,6 +187,8 @@ abstract class AbstractWasmWasiCodegenBoxInlinedTest : AbstractWasmWasiCodegenBo
         }
     }
 }
+
+abstract class AbstractWasmJsTranslatorTest : AbstractWasmJsCodegenBoxTest(pathToTestDir = "js/js.translator/testData/box/")
 
 fun currentWasmCompilerSettings(wasmTarget: WasmTarget) = object : CustomWebCompilerSettings {
     override val version: String

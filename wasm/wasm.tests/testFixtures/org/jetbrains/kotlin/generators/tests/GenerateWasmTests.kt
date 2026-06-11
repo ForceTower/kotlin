@@ -119,7 +119,7 @@ fun main(args: Array<String>) {
         }
 
         testGroup(testsRoot, "js/js.translator/testData/box", testRunnerMethodName = "runTest0") {
-            testClass<AbstractFirWasmJsTranslatorTest> {
+            testClass<AbstractWasmJsTranslatorTest> (suiteTestClassName = "WasmJsTranslatorBoxGenerated") {
                 model("main", pattern = jsTranslatorTestPattern)
                 model("native/", pattern = jsTranslatorTestPattern)
                 model("esModules/", pattern = jsTranslatorTestPattern, excludeDirs = jsTranslatorEsModulesExcludedDirs)

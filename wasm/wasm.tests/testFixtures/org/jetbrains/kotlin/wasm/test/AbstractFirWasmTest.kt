@@ -181,11 +181,6 @@ open class AbstractFirWasmJsCodegenInteropTest : AbstractFirWasmJsTest(
     }
 }
 
-open class AbstractFirWasmJsTranslatorTest : AbstractFirWasmJsTest(
-    "js/js.translator/testData/box/",
-    "js.translator/firBox"
-)
-
 open class AbstractFirWasmJsSteppingTest(
     pathToTestDir: String = "compiler/testData/debug/stepping/",
     testGroupOutputDirPrefix: String = "debug/stepping/firBox"
