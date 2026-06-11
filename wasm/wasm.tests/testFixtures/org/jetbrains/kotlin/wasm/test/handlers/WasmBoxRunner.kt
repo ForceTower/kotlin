@@ -52,6 +52,7 @@ class WasmBoxRunner(
         // it follows `useUnitTestRunnerOnly` (the unit-test grouping path collects and re-attributes; the
         // standalone box-export path throws directly).
         throwOnExceptions: Boolean = !useUnitTestRunnerOnly,
+        additionalTestServices: List<TestServices> = emptyList(),
     ): List<Throwable> {
         val debugMode = DebugMode.fromSystemProperty("kotlin.wasm.debugMode")
 
@@ -74,6 +75,7 @@ class WasmBoxRunner(
                 filesToIgnoreInSizeChecks = filesToIgnoreInSizeChecks,
                 useUnitTestRunnerOnly = useUnitTestRunnerOnly,
                 outputCollector = outputCollector,
+                additionalTestServices = additionalTestServices,
             )
 
             return exceptions + when (mode) {
@@ -168,11 +170,14 @@ open class WasmFolderBoxRunnerGroupingStage(
     }
 
     private fun runOnFolder(folder: File): RunResult {
+        val inputs = testServices.groupingStageInputs
+        val additionalTestServices = inputs.drop(1).map { it.testServices }
         val collectedOutputs = mutableListOf<String>()
         val throwables = wasmFolderBoxRunner.saveAdditionalFilesAndRun(
             folder, "dev", mutableSetOf(),
             useUnitTestRunnerOnly = true,
             outputCollector = collectedOutputs,
+            additionalTestServices = additionalTestServices,
         )
         return RunResult(collectedOutputs, throwables)
     }

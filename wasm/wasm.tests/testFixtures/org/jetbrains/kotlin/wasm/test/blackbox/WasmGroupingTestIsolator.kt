@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.wasm.test.blackbox
 
 import org.jetbrains.kotlin.test.directives.CodegenTestDirectives
+import org.jetbrains.kotlin.test.directives.JsEnvironmentConfigurationDirectives
 import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirectives
 import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives
 import org.jetbrains.kotlin.test.directives.WasmEnvironmentConfigurationDirectives
@@ -24,6 +25,7 @@ class WasmGroupingTestIsolator(testServices: TestServices) : GroupingTestIsolato
         get() = listOf(
             WasmEnvironmentConfigurationDirectives,
             JvmEnvironmentConfigurationDirectives, // for directive WITH_REFLECT
+            JsEnvironmentConfigurationDirectives, // for directive CALL_MAIN
             CodegenTestDirectives,
             LanguageSettingsDirectives,
             CustomKlibCompilerTestDirectives,
@@ -45,6 +47,7 @@ class WasmGroupingTestIsolator(testServices: TestServices) : GroupingTestIsolato
             WasmEnvironmentConfigurationDirectives.WASM_IGNORE_FOR,
             WasmEnvironmentConfigurationDirectives.RUN_UNIT_TESTS,
             JvmEnvironmentConfigurationDirectives.WITH_REFLECT,
+            JsEnvironmentConfigurationDirectives.CALL_MAIN,
         )
         if (isolationDirectives.any { it in moduleStructure.allDirectives })
             return BatchToken.Isolated
@@ -69,6 +72,18 @@ class WasmGroupingTestIsolator(testServices: TestServices) : GroupingTestIsolato
             module.files.any { !it.name.endsWith(".kt") }
         }
         if (hasNonKotlinFiles)
+            return BatchToken.Isolated
+
+        // Tests with companion `.js`/`.mjs` files on disk (e.g. `class.js` next to `class.kt` for
+        // `@JsInterop` / `native` tests) define globals that are loaded as plain scripts by the VM.
+        // When multiple such tests are batched together their globals can clash (e.g. two tests both
+        // define `function A(c)`), causing wrong results. Isolate them so each runs in its own VM.
+        val hasCompanionJsFile = moduleStructure.originalTestDataFiles.any { file ->
+            file.parentFile.resolve(file.nameWithoutExtension + ".js").exists() ||
+            file.parentFile.resolve(file.nameWithoutExtension + ".mjs").exists() ||
+            file.parentFile.resolve(file.nameWithoutExtension + "__main.js").exists()
+        }
+        if (hasCompanionJsFile)
             return BatchToken.Isolated
 
         if (ISOLATION_SOURCE_REGEXES.any { moduleStructure.sourceContains(it) })

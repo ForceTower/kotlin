@@ -59,10 +59,11 @@ class WasmCompilationSetsBoxRunnerGroupingStage(
         useUnitTestRunnerOnly: Boolean,
         throwOnExceptions: Boolean,
         outputCollector: MutableList<String>?,
+        additionalTestServices: List<TestServices> = emptyList(),
     ): List<Throwable> = if (isWasiTarget) {
         wasiBoxRunner.runWasmCode(artifact, useUnitTestRunnerOnly, outputCollector, throwOnExceptions)
     } else {
-        wasmBoxRunner.runWasmCode(artifact, useUnitTestRunnerOnly, outputCollector, throwOnExceptions)
+        wasmBoxRunner.runWasmCode(artifact, useUnitTestRunnerOnly, outputCollector, throwOnExceptions, additionalTestServices)
     }
 
     override fun processArtifact(artifact: BinaryArtifacts.Wasm) {
@@ -98,12 +99,14 @@ class WasmCompilationSetsBoxRunnerGroupingStage(
             return
         }
 
+        val additionalTestServices = inputs.drop(1).map { it.testServices }
         val collectedOutputs = mutableListOf<String>()
         val exceptions = runWasmCode(
             artifact,
             useUnitTestRunnerOnly = true,
             throwOnExceptions = false,
             outputCollector = collectedOutputs,
+            additionalTestServices = additionalTestServices,
         )
         handleRunResult(RunResult(collectedOutputs, exceptions))
     }

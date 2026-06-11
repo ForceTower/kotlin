@@ -13,7 +13,11 @@ import java.io.File
 internal interface WasmArtifactsCollector {
     val testServices: TestServices
 
-    fun collectJsArtifacts(originalFile: File, mode: String): JsArtifacts {
+    fun collectJsArtifacts(
+        originalFile: File,
+        mode: String,
+        additionalTestServices: List<TestServices> = emptyList(),
+    ): JsArtifacts {
         val jsFiles = mutableListOf<AdditionalFile>()
         val mjsFiles = mutableListOf<AdditionalFile>()
         var entryMjs: String? = "test.mjs"
@@ -35,25 +39,35 @@ internal interface WasmArtifactsCollector {
             }
         }
 
-        originalFile.parentFile.resolve(originalFile.nameWithoutExtension + ".js")
-            .takeIf { it.exists() }
-            ?.let {
-                jsFiles += AdditionalFile(it.name, it.readText())
-            }
+        // Collect companion files for the primary test and all additional tests in the batch.
+        // Each test may have sibling `.js`/`.mjs` files (e.g. `externalObject.mjs` for
+        // `@JsModule` tests). The compiled wasm imports ALL of them, so they must all be present
+        // in the output dir.
+        val allOriginalFiles = listOf(originalFile) +
+                additionalTestServices.flatMap { it.moduleStructure.originalTestDataFiles }
+        for (origFile in allOriginalFiles) {
+            origFile.parentFile.resolve(origFile.nameWithoutExtension + ".js")
+                .takeIf { it.exists() }
+                ?.let {
+                    if (jsFiles.none { f -> f.name == it.name })
+                        jsFiles += AdditionalFile(it.name, it.readText())
+                }
 
-        originalFile.parentFile.resolve(originalFile.nameWithoutExtension + ".mjs")
-            .takeIf { it.exists() }
-            ?.let {
-                mjsFiles += AdditionalFile(it.name, it.readText())
-            }
+            origFile.parentFile.resolve(origFile.nameWithoutExtension + ".mjs")
+                .takeIf { it.exists() }
+                ?.let {
+                    if (mjsFiles.none { f -> f.name == it.name })
+                        mjsFiles += AdditionalFile(it.name, it.readText())
+                }
 
-
-        originalFile.parentFile.resolve(originalFile.nameWithoutExtension + "__main.js")
-            .takeIf { it.exists() }
-            ?.let {
-                entryMjs = it.name
-                mjsFiles += AdditionalFile(it.name, it.readText())
-            }
+            origFile.parentFile.resolve(origFile.nameWithoutExtension + "__main.js")
+                .takeIf { it.exists() }
+                ?.let {
+                    entryMjs = it.name
+                    if (mjsFiles.none { f -> f.name == it.name })
+                        mjsFiles += AdditionalFile(it.name, it.readText())
+                }
+        }
 
         WasmTypeScriptCompilationHandler.compiledTypeScriptOutput(testServices, mode)
             .takeIf { it.exists() }

@@ -41,9 +41,10 @@ abstract class WasmBoxRunnerBase(
         filesToIgnoreInSizeChecks: MutableSet<File>,
         useUnitTestRunnerOnly: Boolean = false,
         outputCollector: MutableList<String>? = null,
+        additionalTestServices: List<TestServices> = emptyList(),
     ): List<Throwable> {
         val originalFile = testServices.moduleStructure.originalTestDataFiles.first()
-        val collectedJsArtifacts = collectJsArtifacts(originalFile, mark)
+        val collectedJsArtifacts = collectJsArtifacts(originalFile, mark, additionalTestServices)
 
         val debugMode = DebugMode.fromSystemProperty("kotlin.wasm.debugMode")
         val startUnitTests = RUN_UNIT_TESTS in testServices.moduleStructure.allDirectives
