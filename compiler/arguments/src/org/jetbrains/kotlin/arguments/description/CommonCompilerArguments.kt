@@ -116,6 +116,20 @@ val actualCommonCompilerArguments by compilerArgumentsLevel(CompilerArgumentsLev
         )
     }
 
+    @OptIn(ExperimentalArgumentApi::class)
+    compilerArgument {
+        name = "Xescaping-functions"
+        description = ("Add (+) or remove (-) a callable by its fully qualified name to/from the allowlist of " +
+                "functions whose functional argument may let a captured variable escape.").asReleaseDependent()
+        valueType = StringArrayType.defaultNull
+        valueDescription = "<+|-><fq.name>".asReleaseDependent()
+        argumentType = StringListType.defaultEmpty
+
+        lifecycle(
+            introducedVersion = KotlinReleaseVersion.v2_6_0,
+        )
+    }
+
     compilerArgument {
         name = "Xno-inline"
         description = "Disable method inlining.".asReleaseDependent()
