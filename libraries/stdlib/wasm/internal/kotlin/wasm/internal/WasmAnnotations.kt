@@ -13,7 +13,13 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.BINARY)
 internal annotation class ExcludedFromCodegen
 
-// Exclude declaration or file from code generation when stack switching coroutines mode is not enabled
+/**
+ * Wasm supports two coroutine lowering strategies: using state-machine transformation and
+ * stack switching intrinsics. The standard library ships both implementations,
+ * we choose only one for a given compilation. Declarations annotated with a mode that
+ * does not match the active compilation mode are excluded from code generation, so the
+ * unused implementation never reaches the output.
+ */
 @Target(FILE, CLASS, FUNCTION, CONSTRUCTOR, PROPERTY)
 @Retention(AnnotationRetention.BINARY)
 internal annotation class WasmCoroutineMode(
