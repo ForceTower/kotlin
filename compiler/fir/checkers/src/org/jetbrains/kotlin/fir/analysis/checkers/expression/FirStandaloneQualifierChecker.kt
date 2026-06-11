@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.fir.analysis.checkers.expression
 
 import org.jetbrains.kotlin.config.LanguageFeature
-import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
@@ -17,11 +16,11 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.isEnabled
+import org.jetbrains.kotlin.fir.symbols.impl.FirTypeAliasSymbol
 import org.jetbrains.kotlin.fir.types.ResolvedQualifierTypeAccess
 import org.jetbrains.kotlin.fir.types.isUnit
 import org.jetbrains.kotlin.fir.types.resolvedType
 
-@OptIn(ResolvedQualifierTypeAccess::class)
 object FirStandaloneQualifierChecker : FirResolvedQualifierChecker(MppCheckerKind.Common) {
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(expression: FirResolvedQualifier) {
@@ -41,22 +40,16 @@ object FirStandaloneQualifierChecker : FirResolvedQualifierChecker(MppCheckerKin
             return true
         }
 
-        if (isNotResolvedToObject && !isTypeAliasToClassWithCompanion) {
+
+        if (accessedObjectSymbol == null &&
+            (!(qualifierSymbol is FirTypeAliasSymbol && typeArguments.isNotEmpty()) || LanguageFeature.ForbidUselessTypeArgumentsIn25.isEnabled())
+        ) {
             reporter.reportOn(source, FirErrors.NO_COMPANION_OBJECT, symbol)
             return true
         }
 
         return false
     }
-
-    context(context: CheckerContext)
-    private val FirResolvedQualifier.isNotResolvedToObject: Boolean
-        // TODO: it'd be nice to use `resolvedToCompanionObject` here, but see KT-84299
-        get() = resolvedType.isUnit && qualifierSymbol?.fullyExpandedClass()?.classKind != ClassKind.OBJECT
-
-    context(context: CheckerContext)
-    private val FirResolvedQualifier.isTypeAliasToClassWithCompanion: Boolean
-        get() = qualifierSymbol?.fullyExpandedClass()?.resolvedCompanionObjectSymbol != null
 
     context(context: CheckerContext, reporter: DiagnosticReporter)
     private fun FirResolvedQualifier.reportTypeArguments() {
@@ -68,7 +61,8 @@ object FirStandaloneQualifierChecker : FirResolvedQualifierChecker(MppCheckerKin
          * @return true if [FirErrors.EXPLICIT_TYPE_ARGUMENTS_IN_PROPERTY_ACCESS] was reported.
          */
         fun preForbidUselessTypeArgumentsIn25Implementation(): Boolean {
-            if (!resolvedType.isUnit || isTypeAliasToClassWithCompanion) {
+            @OptIn(ResolvedQualifierTypeAccess::class)
+            if (!resolvedType.isUnit || qualifierSymbol?.fullyExpandedClass()?.resolvedCompanionObjectSymbol != null) {
                 reporter.reportOn(source, FirErrors.EXPLICIT_TYPE_ARGUMENTS_IN_PROPERTY_ACCESS, "Object")
                 return true
             }
