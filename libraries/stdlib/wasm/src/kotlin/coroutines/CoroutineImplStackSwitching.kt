@@ -64,9 +64,12 @@ internal class CoroutineImplStackSwitching<T, R>(
     override fun doResume(): Any? {
         val wasmCont = wasmContBox.wasmContinuation!!
 
-        val resumeResult: Any? = exception?.let {
-            resumeThrowImpl(it, wasmCont)
-        } ?: resumeWithImpl(wasmCont)
+        val e = exception
+        val resumeResult: Any? =
+            if (e != null)
+                resumeThrowImpl(e, wasmCont)
+            else
+                resumeWithImpl(wasmCont)
 
         return resumeResult
     }

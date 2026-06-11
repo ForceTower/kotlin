@@ -15,10 +15,22 @@ import kotlin.internal.DoNotInlineOnFirstStage
 import kotlin.internal.UsedFromCompilerGeneratedCode
 import kotlin.wasm.internal.reftypes.typedcontref
 
+// Resumes the execution of wasm contref (wasmContinuation parameter)
+// by calling wasm `resume` instruction.
+//
+// When the execution suspends, returns COROUTINE_SUSPENDED.
+// If the suspension doesn't happen, returns the result.
 @Suppress("UNUSED_PARAMETER")
 internal fun resumeWithImpl(wasmContinuation: typedcontref<(Any?) -> Unit>): Any? =
     resumeWithIntrinsic()
 
+// Resumes the execution of wasm contref (wasmContinuation parameter)
+// by calling wasm `resume_throw` instruction.
+// It raises an exception (`objectToThrow`) at the point contref was suspended previously
+// (after `suspend` instruction).
+//
+// When the execution suspends, returns COROUTINE_SUSPENDED.
+// If the suspension doesn't happen, returns the result.
 @Suppress("UNUSED_PARAMETER")
 internal fun resumeThrowImpl(objectToThrow: Throwable, cont: typedcontref<(Any?) -> Unit>): Any? =
     resumeThrowIntrinsic()
@@ -44,20 +56,20 @@ internal fun nullContrefIntrinsic(): typedcontref<(Any?) -> Unit>? {
 internal suspend inline fun <T> suspendCoroutineUninterceptedOrReturnStackSwitching(block: (Continuation<T>) -> Any?): T {
     val completion = getContinuation<T>()
     val wasmContBox = WasmContinuationBox(nullContrefIntrinsic())
-    val freshCont = CoroutineImplStackSwitching<T, T>(completion, wasmContBox)
-    freshCont.pendingSuspend = true
-    val blockResult = block(freshCont)
+    val blockKotlinContinuation = CoroutineImplStackSwitching<T, T>(completion, wasmContBox)
+    blockKotlinContinuation.pendingSuspend = true
 
+    val blockResult = block(blockKotlinContinuation)
     if (blockResult !== COROUTINE_SUSPENDED) return blockResult as T
 
-    if (freshCont.pendingSuspend) {
-        freshCont.pendingSuspend = false
-        suspendIntrinsic(freshCont.wasmContBox)
+    if (blockKotlinContinuation.pendingSuspend) {
+        blockKotlinContinuation.pendingSuspend = false
+        suspendIntrinsic(blockKotlinContinuation.wasmContBox)
     }
 
-    val e = freshCont.exception
+    val e = blockKotlinContinuation.exception
     if (e != null) throw e
-    return freshCont.result as T
+    return blockKotlinContinuation.result as T
 }
 
 @Suppress("UNUSED_PARAMETER")
