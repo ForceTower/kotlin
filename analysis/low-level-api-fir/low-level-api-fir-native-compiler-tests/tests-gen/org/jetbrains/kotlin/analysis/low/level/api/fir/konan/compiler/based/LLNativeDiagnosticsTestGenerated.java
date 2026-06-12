@@ -807,6 +807,12 @@ public class LLNativeDiagnosticsTestGenerated extends AbstractLLNativeDiagnostic
       public void testT7() {
         run("t7.kt");
       }
+
+      @Test
+      @TestMetadata("variadicCollectionLiterals.kt")
+      public void testVariadicCollectionLiterals() {
+        run("variadicCollectionLiterals.kt");
+      }
     }
 
     @Nested

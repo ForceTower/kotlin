@@ -51,3 +51,47 @@ import objcTests.*
             )
     )
 }
+
+// KT-82852: collection literals in spread position work the same as *arrayOf(...) in variadic
+// ObjC calls, because the literal desugars to a kotlin.arrayOf(...) call.
+//
+// This test is expected to break once KT-81722 adds Array.Companion.of (tried before the stdlib
+// arrayOf fallback): the literal will desugar to a different symbol that the interop gate rejects.
+// Updating the gate to keep these calls working is part of KT-82852.
+@Test fun testVarargsWithCollectionLiterals() {
+    assertEquals(
+            "1 2 3",
+            TestVarargs(
+                    format = "%d %d %d",
+                    args = *[1, 2, 3]
+            ).formatted
+    )
+
+    assertEquals(
+            "10 11",
+            TestVarargs(
+                    format = "%d %d",
+                    args = [10, 11]
+            ).formatted
+    )
+
+    assertEquals(
+            "4 5",
+            TestVarargs.testVarargsWithFormat("%d %d", *[4, 5]).formatted
+    )
+
+    assertEquals(
+            "6 7 8",
+            TestVarargs.testVarargsWithFormat("%d %d %d", 6, *[7], 8).formatted
+    )
+
+    assertEquals(
+            "empty",
+            TestVarargs.testVarargsWithFormat("empty", *[]).formatted
+    )
+
+    assertEquals(
+            "9",
+            TestVarargsSubclass.stringWithFormat("%d", *[9])
+    )
+}

@@ -159,6 +159,7 @@ abstract class ComplexCInteropTestBase : AbstractNativeSimpleTest() {
                     "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
                     "-opt-in=kotlin.native.internal.InternalForKotlinNative",
                     "-XXLanguage:+ImplicitSignedToUnsignedIntegerConversion",
+                    "-XXLanguage:+CollectionLiterals",
                     "-tr", "-e", "main", "-linker-option", "-L${buildDir.absolutePath}"
                 ),
                 cinteropArgs = hFiles.flatMap { listOf("-header", "tests/${it.name}") }
